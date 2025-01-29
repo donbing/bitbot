@@ -1,4 +1,4 @@
-cryptography==42.0.8
+cryptography==43.0.1
 Pillow==11.1.0
 numpy==1.26.4
 pandas==2.1.1
@@ -33,3 +33,7 @@ python-dateutil
 # urllib3>=2.2.3 # not directly required, pinned by Snyk to avoid a vulnerability
 # zipp>=3.21.0 # not directly required, pinned by Snyk to avoid a vulnerability
 # aiohttp>=3.10.11 # not directly required, pinned by Snyk to avoid a vulnerability   
+aiohttp>=3.10.11 # not directly required, pinned by Snyk to avoid a vulnerability
+requests>=2.32.2 # not directly required, pinned by Snyk to avoid a vulnerability
+urllib3>=2.2.2 # not directly required, pinned by Snyk to avoid a vulnerability
+zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability

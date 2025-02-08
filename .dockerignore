@@ -5,8 +5,6 @@
 .gitmodules
 docs
 tests
-scripts
-
 docker-compose.yml
 readme.md
 __pycache__

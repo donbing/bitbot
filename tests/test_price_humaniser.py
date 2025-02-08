@@ -1,8 +1,5 @@
 import unittest
-import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
-from src.price_humaniser import format_title_price, format_scale_price
+from src.drawing.market_charts.price_humaniser import format_title_price, format_scale_price
 
 
 class test_title_price_humaniser(unittest.TestCase):

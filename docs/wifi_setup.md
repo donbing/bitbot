@@ -17,7 +17,7 @@
     </tr>
 </table>
 
-* **Once completed** your phone will disconnect, Bitbot will then reboot and ***show a chart*** a minute or so later
+* **Once completed** your phone will disconnect, Bitbot will then proceed to ***show a chart***  
 ---
 ## Troubleshooting
  >  ### I dont see my home wifi in step 3
@@ -25,3 +25,6 @@
  > ### I dont see the Bitbot WiFi access-point
  - Ensure that your Bitbot is **powered up** and has refreshed its screen to show the ***connection warning message***, there should be a **green light** on the back of the raspberry pi.
  - In case of a software failure, you can ***use a computer*** to [write your wifi details **directly to the SD-Card**](https://www.raspberrypi-spy.co.uk/2017/04/manually-setting-up-pi-wifi-using-wpa_supplicant-conf/).
+ > ### My phone/computer does not prompt me to sign-in
+ - Your phone may ask you if you **want to stay connected** even though there is ***no internet access***, please stay connected if this happens.
+ - Open a browser window and type **bitbot** into the **address bar**, you should now be presented with a list of wifi access points as per **step 3 in the Detailed Guide above**.

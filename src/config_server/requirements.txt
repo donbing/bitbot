@@ -1,0 +1,5 @@
+cryptography==42.0.8
+flask==3.1.0
+pillow
+ccxt==4.4.40
+yfinance==0.2.51

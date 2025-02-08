@@ -1,0 +1,27 @@
+FROM navikey/raspbian-bullseye:latest AS base-image
+    ARG DEBIAN_FRONTEND=noninteractive
+    RUN apt-get update --quiet
+
+    RUN apt-get install --assume-yes \ 
+        --no-install-recommends \
+        --quiet \
+        python3 python3-rpi.gpio libatlas-base-dev libtiff5 libopenjp2-7 
+
+FROM base-image AS build-image
+    ARG DEBIAN_FRONTEND=noninteractive
+    RUN apt-get install \
+        --assume-yes \
+        --quiet \
+        --no-install-recommends \
+        python3-pip 
+    RUN pip install --upgrade pip
+    COPY requirements.txt .
+    RUN pip install -v --prefer-binary --extra-index-url https://www.piwheels.org/simple --user -r requirements.txt 
+
+FROM base-image AS release-image
+    RUN apt-get clean && rm -rf /var/cache/apt/lists
+    COPY --from=build-image /root/.local /root/.local
+    ENV PATH=/root/.local/bin:$PATH
+    WORKDIR /app
+    COPY . .
+    CMD [ "python3", "server.py" ]

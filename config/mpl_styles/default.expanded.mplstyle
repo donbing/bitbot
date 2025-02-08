@@ -1,0 +1,28 @@
+axes.spines.left:   False 
+axes.spines.bottom: False
+axes.spines.top:    False
+axes.spines.right:  False
+
+# axes.autolimit_mode: data
+
+xtick.labelsize:    11
+ytick.labelsize:    11
+
+xtick.major.size:   4
+ytick.major.size:   4
+
+ytick.direction:    in
+xtick.direction:    in
+
+
+#xtick.major.pad:     -5
+#ytick.major.pad:     -0
+
+figure.subplot.left:   0  
+figure.subplot.right:  1    
+figure.subplot.bottom: 0   
+figure.subplot.top:    1  
+
+# margin between subplots
+figure.subplot.wspace: 0
+figure.subplot.hspace: 0.2

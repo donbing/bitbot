@@ -1,0 +1,72 @@
+figure.dpi:         100
+
+# margings/fit fiddling
+# savefig.pad_inches:   0
+# savefig.transparent:    True
+# figure.subplot.hspace: 0 
+# figure.frameon:     False 
+
+# use pixel font to avoid bad rendering
+font.family: sans-serif
+font.sans-serif: basis33
+
+# try to keep text crips for e-ink display
+text.hinting_factor:1
+text.hinting:       native
+text.antialiased:   False
+patch.antialiased:  False
+lines.antialiased:  False
+
+# base line params
+axes.facecolor:     white
+axes.edgecolor:     black
+axes.linewidth:     0.5
+
+# hide top/right spines
+axes.spines.left:   True 
+axes.spines.bottom: True
+axes.spines.top:    False
+axes.spines.right:  False
+
+# bakground grid
+axes.grid:          False
+grid.linestyle:     :
+grid.linewidth:     0.5
+grid.color:         red
+
+# margin between candles and axes
+axes.xmargin : 0.05
+axes.ymargin : 0.2
+
+xtick.color:        black
+ytick.color:        black
+
+xtick.labelcolor:   black
+ytick.labelcolor:   black
+
+xtick.labelsize:    11
+ytick.labelsize:    11
+
+xtick.alignment:    left
+
+ytick.direction: inout
+xtick.direction: inout
+
+ytick.major.size:  1
+xtick.major.size:  1
+
+ytick.major.width: 0.5
+xtick.major.width: 0.5
+
+ytick.major.pad: 1
+xtick.major.pad: 2
+
+# draw axes over other items
+axes.axisbelow: False
+
+# space between label and axis
+axes.labelpad: 0
+
+# try to pick sensible tick dates
+# axes.autolimit_mode:    round_numbers 
+# date.interval_multiples:         True

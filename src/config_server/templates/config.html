@@ -1,0 +1,172 @@
+<html>
+    <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"> 
+        <style>
+            label{
+                display: block;
+            }
+            .sources  {
+                display: flex;
+                flex-direction: row;
+                -webkit-justify-content: space-between;
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+            .sources > label, .source{
+                border-radius: 0.3em;
+                border: 0.2em solid var(--border);
+                width: 47.5%;
+                padding: 0.3em;
+            }
+            h1,h2,h3{
+                margin-top: 0.3em;
+                margin-left: 1em;
+            }
+            input, select{
+                margin-left: 1em;
+                max-width: 50%;
+            }
+            input:invalid {
+               border: 2px dashed red;
+            }
+            form{
+                max-width: 60em;
+            }
+            .chart_layout_options input,select {
+                display: inline;
+                margin-left: 0;
+            }
+        </style>
+    </head>
+    <body>
+     <form action="{{ request.path  }}" method="post" spellcheck="false">
+         <fieldset>
+            <h2>🤑 Currency</h2>
+            <hr/>
+            <div class="sources">
+                <div class="source">
+                    <label for="Exchange">
+                        <h3>🏛️ Crypto Exchange</h3>
+                        <input type="search" 
+                            name="exchange" 
+                            id="exchange" 
+                            value="{{ config.exchange_name() }}"
+                            dir="ltr" 
+                            spellcheck="false" 
+                            autocorrect="off" 
+                            autocomplete="off" 
+                            autocapitalize="off"
+                            required
+                            data-autocomplete="/exchanges/search" />
+                    </label>
+                    <label for="instrument">
+                        <h3>💸 Market</h3>
+                        <input 
+                            type="search" 
+                            name="instrument" 
+                            id="instrument" 
+                            value="{{ config.instrument_name() }}"
+                            dir="ltr" 
+                            spellcheck="false" 
+                            autocorrect="off" 
+                            autocomplete="off" 
+                            autocapitalize="off"
+                            required
+                            data-autocomplete="/exchanges" />
+                    </label>  
+                </div>
+                <div class="source">
+                    <label for="stock_symbol">
+                        <h3>📈 Stock Symbol</h3>
+                        <input type="text" name="stock_symbol" id="stock_symbol" value="{{ config.stock_symbol() }}"
+                            dir="ltr" spellcheck=false autocorrect="off" autocomplete="off" autocapitalize="off"/>
+                        Chart stock price instead of crypto
+                    </label>
+                </div>
+                
+                <label for="holdings" class="source">
+                    <h3>💰 Your holdings</h3>
+                    <input type="number" name="holdings" value="{{ config.portfolio_size() }}"/>
+                </label>
+                
+            </div>
+            
+        </fieldset>
+        
+        <fieldset class="chart_layout_options">
+            <h2>📏 Layout</h2>
+            <hr/>
+            <div class="sources">
+                <label for="border">
+                    <h3>
+                        <select name="border" id="border">
+                            <option value="none" {{"selected" if config.border_type() == 'none'}}>None</option>
+                            <option value="red" {{"selected" if config.border_type() == 'red'}}>Red</option>  
+                            <option value="black" {{"selected" if config.border_type() == 'black'}}>Black</option>  
+                        </select>
+                        ⏹️ Border
+                    </h3>
+                
+                    Set a coloured border around the edge of the display
+                </label>
+
+                <label for="overlay_layout">
+                    <h3>
+                        <select name="overlay_layout" id="overlay_layout">
+                            <option value="1" {{"selected" if config.overlay_type() == '1'}}>Compact</option>
+                            <option value="2" {{"selected" if config.overlay_type() == '2'}}>Modern</option>  
+                        </select>
+                        📐 Overlay type
+                    </h3>
+                    
+                    Change the current price and instrument text layout
+                </label>
+
+                <label for="timestamp">
+                    <h3><input type="checkbox" name="timestamp" id="timestamp" {{"checked" if config.show_timestamp()}} value="true"/> 🕘 Show timestamp</h3>
+                    
+                    Show the last refresh time at the bottom right 
+                </label>
+                
+                <label for="expanded_chart">
+                    <h3><input type="checkbox" name="expanded_chart" id="expanded_chart" {{"checked" if config.expand_chart()}} value="true"/> 📈 Expand axis lines</h3>
+                    Move the axis lines to the edge of the display
+                </label>
+
+                <label for="show_volume">
+                    <h3><input type="checkbox" name="show_volume" id="show_volume" {{"checked" if config.show_volume()}} value="true"/> 📊 Show volume</h3>
+                    Add a volume chart to the bottom
+                </label>
+                
+                <label for="show_ip">
+                    <h3><input type="checkbox" name="show_ip" id="show_ip" {{"checked" if config.show_ip()}} value="true"/> 📡 Show IP address</h3>
+                    Show the device IP at the bottom left
+                </label>
+
+                <label for="refresh_time_minutes">
+                    <h3><input type="number" required name="refresh_time_minutes" min="5" max="999" id="refresh_time_minutes" value="{{config.refresh_rate_minutes()}}"/> 🔄 Refresh interval (mins)</h3>
+                    How long to wait between screen refreshes
+                </label>
+                
+                <label for="candle_width">
+                    <h3>
+                        <select name="candle_width" id="candle_width">
+                            <option value="5m">5m</option>
+                            <option value="15m">15m</option>  
+                            <option value="1h">1h</option>    
+                            <option value="4h">4h</option>  
+                        </select>
+                        🎂 Candle width
+                    </h3>
+                    Time frame for each candle, affects the size of the chart
+                </label>
+            </div>
+        </fieldset>
+
+         <input type="submit"/>
+     </form>
+    </body>
+</html>

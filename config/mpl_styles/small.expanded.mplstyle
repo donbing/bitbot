@@ -1,0 +1,9 @@
+ytick.major.pad:     -18
+xtick.major.pad:     -6
+# ytick.alignment: center_baseline
+
+xtick.labelsize:    6
+ytick.labelsize:    6
+
+xtick.major.size:   1
+ytick.major.size:   1

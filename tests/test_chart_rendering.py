@@ -1,78 +1,126 @@
-import unittest
-import pathlib
-import os
-import sys
-from os.path import join as pjoin
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
-from src import bitbot
+import io
+from PIL import Image, ImageChops
+import pandas as pd
 from src.configuration.bitbot_files import use_config_dir
 from src.configuration.bitbot_config import load_config_ini
+import os
+import pathlib
+import unittest
 
-# check config files
-curdir = pathlib.Path(__file__).parent.resolve()
-files = use_config_dir(pjoin(curdir, "../"))
+from src.drawing.market_charts.mpf_plotted_chart import MplFinanceChart
+from src.exchanges.CandleData import CandleData
 
+exchange_name = "coinbase"
 
-def load_config():
-    config = load_config_ini(files.config_ini)
-    config.set('display', 'output', 'disk')
-    return config
+# basic config
+config_defaults = {
+    'display': {
+        'expanded_chart': 'false',
+        'show_volume': 'false',
+    }
+}
 
+class TestDisplay():
+    def __init__(self, size, dpi):
+        self.size1 = size
+        self.dpi1 = dpi
 
-# load config
-test_params = [
-    ("APPLE 1mo defaults", "", "", "AAPL", "1", "false", "false", "1mo", ""),
-    ("APPLE 3mo defaults", "", "", "AAPL", "1", "false", "false", "3mo", ""),
+    def size(self):
+        return self.size1
+    
+    def dpi(self):
+        return self.dpi1
 
-    ("bitmex BTC 5m defaults", "bitmex", "BTC/USD", "", "1", "false", "false", "5m", ""),
-    ("bitmex BTC 1h defaults", "bitmex", "BTC/USD", "", "1", "false", "false", "1h", ""),
-    ("bitmex BTC 1d defaults", "bitmex", "BTC/USD", "", "1", "false", "false", "1d", ""),
-
-    ("BTC HOLDINGS", "bitmex", "BTC/USD", "", "1", "false", "false", "1d", "100"),
-    ("BTC VOLUME", "bitmex", "BTC/USD", "", "1", "false", "true", "1d", ""),
-    ("BTC VOLUME EXPANDED", "bitmex", "BTC/USD", "", "1", "true", "true", "1d", ""),
-    ("BTC VOLUME OVERLAY2", "bitmex", "BTC/USD", "", "2", "false", "true", "1d", ""),
-    ("BTC OVERLAY2", "bitmex", "BTC/USD", "", "2", "false", "false", "1d", ""),
-
-    ("bitmex ETH 5m defaults", "bitmex", "ETH/USD", "", "1", "false", "false", "5m", ""),
-    ("bitmex ETH 1h defaults", "bitmex", "ETH/USD", "", "1", "false", "false", "1h", ""),
-    ("bitmex ETH 1d defaults", "bitmex", "ETH/USD", "", "1", "false", "false", "1d", ""),
-
-    ("cryptocom CRO 5m defaults", "cryptocom", "CRO/USDC", "", "1", "false", "false", "5m", ""),
-    ("cryptocom CRO 1h defaults", "cryptocom", "CRO/USDC", "", "1", "false", "false", "1h", ""),
-    ("cryptocom CRO 1d defaults", "cryptocom", "CRO/USDC", "", "1", "false", "false", "1d", ""),
-]
-
-os.makedirs('tests/images/', exist_ok=True)
-
+test_data_path = "tests/data"
+test_images_path = "tests/images"
 
 class TestRenderingMeta(type):
-    def __new__(mcs, name, bases, dict):
+    def __new__(mcs, name, bases, dict, chart_size):
+        chart = configure_chart(chart_size)
 
-        def gen_test(name, exch, token, stock, overlay, expand, volume, candle_width, holdings):
+        def gen_test(generatedTestName, data_file_name, this_tests_images_path):
             def test(self):
-                config = load_config()
-                image_file_name = f'tests/images/{name}.png'
-                config.set('currency', 'stock_symbol', stock)
-                config.set('currency', 'exchange', exch)
-                config.set('currency', 'instrument', token)
-                config.set('currency', 'holdings', holdings)
-                config.set('display', 'overlay_layout', overlay)
-                config.set('display', 'expanded_chart', expand)
-                config.set('display', 'show_volume', volume)
-                config.set('display', 'candle_width', candle_width)
-                config.set('display', 'disk_file_name', image_file_name)
-                app = bitbot.BitBot(config, files)
-                app.run()
-                # os.system(f"code {image_file_name}")
+                test_image_file_path = f"{this_tests_images_path}/{generatedTestName}.png"
+                chart_data = get_chart_data(data_file_name)
+
+                previous_image = Image.open(test_image_file_path) if os.path.exists(test_image_file_path) else None
+
+                with io.BytesIO() as file_stream:
+                    chart.write_to_stream(file_stream, chart_data)
+                    new_image = Image.open(file_stream)
+
+                    assert_image_matches_size(new_image, chart_size)
+
+                    changes = image_changes(previous_image, new_image, test_image_file_path)
+                    new_image.save(test_image_file_path)
+                    if changes:
+                        # os.system("code '" + test_image_file_path + "'")
+                        assert False, f"Image diff check: '{changes}'"
 
             return test
 
-        for test_param in test_params:
-            test_name = "test_%s" % test_param[0]
-            dict[test_name] = gen_test(*test_param)
+        for file_name in os.listdir(test_data_path):
+            test_name = f"test_{file_name}".replace(".pkl","")
+            this_tests_images_path=os.path.join(test_images_path, chart_size)
+            os.makedirs(this_tests_images_path, exist_ok=True)
+            dict[test_name] = gen_test(test_name, file_name, this_tests_images_path)
+
         return type.__new__(mcs, name, bases, dict)
 
+def configure_chart(chart_size):
+    curdir = pathlib.Path(__file__).parent.resolve()
+    files = use_config_dir(os.path.join(curdir, "../"))
+    config = load_config_ini(files)
+    config.read_dict(config_defaults)
+    config.config["display"]["resolution"] = chart_size
+    chart = MplFinanceChart(config, TestDisplay(tuple(map(int, chart_size.split("x"))), 100), files)
+    return chart
 
-class ChartRenderingTests(unittest.TestCase, metaclass=TestRenderingMeta):
+
+def get_chart_data(test_data_file_name):
+    # yes, maybe pkl metadata somehow?
+    source, dest, candle_width = test_data_file_name.replace(".pkl", "").split("_")
+    price_history = pd.read_pickle(f"{test_data_path}/{test_data_file_name}")
+
+    return CandleData(f"{source}/{dest}", candle_width, price_history)
+
+
+def assert_image_matches_size(new_image, expected_res):
+    actual_res = f"{new_image.width}x{new_image.height}"
+    assert expected_res == actual_res, f"expected {expected_res}, was {actual_res}"
+
+
+def image_changes(previous_image, new_image, file_name):
+    if previous_image is None:
+        return new_image
+    
+    diff = ImageChops.difference(new_image.convert('RGB'), previous_image.convert('RGB'))
+
+    differenceImageBounds = diff.getbbox()
+    if differenceImageBounds:
+        dir, name, = os.path.split(file_name)
+        fails_folder = os.path.join(dir, 'fail')
+        os.makedirs(fails_folder, exist_ok=True)
+        diff_file_path = os.path.join(fails_folder, name)
+
+        threshold = 128
+        diff = diff.point(lambda x: 0 if x < threshold else 255)
+        diff.save(diff_file_path)
+
+        return diff, diff_file_path
+
+
+class SmallChartRenderingTests(unittest.TestCase, chart_size="264x176", metaclass=TestRenderingMeta):
+    __metaclass__ = TestRenderingMeta
+
+
+class MediumChartRenderingTests(unittest.TestCase, chart_size="400x300", metaclass=TestRenderingMeta):
+    __metaclass__ = TestRenderingMeta
+
+
+class LargeChartRenderingTests(unittest.TestCase, chart_size="640x448", metaclass=TestRenderingMeta):
+    __metaclass__ = TestRenderingMeta
+
+
+class ExtraLargeChartRenderingTests(unittest.TestCase, chart_size="800x480", metaclass=TestRenderingMeta):
     __metaclass__ = TestRenderingMeta

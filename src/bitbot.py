@@ -15,10 +15,6 @@ from src.drawing.image_utils.CenteredText import centered_text
 
 
 class BitBot():
-    def __init__(self, config, display):
-        self.config = config
-        self.display = display
-
     def __init__(self, config, files):
         self.config = config
         self.files = files
